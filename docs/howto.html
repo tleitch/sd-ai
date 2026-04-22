@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How to Run the Benchmark — SD-AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  code { background: #f1f5f9; border-radius: 3px; padding: 1px 5px; font-family: 'Fira Code', monospace; font-size: 0.875em; color: #1e293b; }
+  pre code { background: none; padding: 0; color: #e2e8f0; }
+  .step-number { width: 28px; height: 28px; border-radius: 50%; background: #6366f1; color: white; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .pitfall-icon { font-size: 18px; flex-shrink: 0; }
+  details summary { cursor: pointer; list-style: none; }
+  details summary::-webkit-details-marker { display: none; }
+  details[open] summary .chevron { transform: rotate(90deg); }
+  .chevron { transition: transform 0.2s; display: inline-block; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="index.html" class="flex items-center gap-3 hover:opacity-80">
+        <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">SD</div>
+        <span class="font-bold">SD-AI Leaderboard</span>
+      </a>
+      <span class="text-gray-300">/</span>
+      <span class="text-gray-600 text-sm">How-To &amp; Pitfalls</span>
+    </div>
+    <a href="https://github.com/UB-IAD/sd-ai/issues/new?template=benchmark_submission.md&title=[Benchmark+Submission]"
+       target="_blank"
+       class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium">
+      Submit Results
+    </a>
+  </div>
+</header>
+
+<main class="max-w-4xl mx-auto px-4 py-8">
+
+  <!-- Intro -->
+  <h1 class="text-3xl font-bold mb-2">Running the SD-AI Benchmark Locally</h1>
+  <p class="text-gray-600 mb-8 leading-relaxed">
+    This guide explains how to benchmark local LLMs against the SD-AI evaluation suites and submit your results.
+    All local model runs require Apple Silicon (M1 Pro or later). Cloud model runs work on any platform.
+  </p>
+
+  <!-- Quick navigation -->
+  <nav class="bg-white border border-gray-200 rounded-xl p-4 mb-8 text-sm">
+    <p class="font-semibold text-gray-700 mb-2">On this page</p>
+    <ol class="list-decimal list-inside space-y-1 text-indigo-600">
+      <li><a href="#hardware" class="hover:underline">Hardware requirements</a></li>
+      <li><a href="#software" class="hover:underline">Software setup</a></li>
+      <li><a href="#running" class="hover:underline">Running the benchmark</a></li>
+      <li><a href="#pitfalls" class="hover:underline">Common pitfalls</a></li>
+      <li><a href="#interpreting" class="hover:underline">Interpreting results</a></li>
+      <li><a href="#submitting" class="hover:underline">Submitting your results</a></li>
+    </ol>
+  </nav>
+
+  <!-- 1. Hardware -->
+  <section id="hardware" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-sm font-bold">1</span>
+      Hardware Requirements
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white border border-gray-200 rounded-xl p-4">
+        <h3 class="font-semibold mb-2">Minimum (small models ≤70B)</h3>
+        <ul class="text-sm space-y-1 text-gray-700">
+          <li>Apple M1 Pro / M2 / M3 with ≥32 GB unified memory</li>
+          <li>100 GB free disk space</li>
+          <li>macOS 14 Sonoma or later</li>
+          <li>Expected: ~3–8 s per request (70B Q4)</li>
+        </ul>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-xl p-4">
+        <h3 class="font-semibold mb-2">Recommended (400–700B models)</h3>
+        <ul class="text-sm space-y-1 text-gray-700">
+          <li>Apple M3 Ultra / M4 Ultra with ≥192 GB unified memory</li>
+          <li>512 GB for full 671B models (MLX or GGUF)</li>
+          <li>Fast NVMe volume for models that don't fit in RAM</li>
+          <li>Our reference: Mac Studio M3 Ultra 512 GB</li>
+        </ul>
+      </div>
+    </div>
+    <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900">
+      <strong>Memory rule of thumb:</strong> A 671B Q4_K_M model requires ~390 GB of unified memory to fit entirely on-chip.
+      If it partially offloads to system RAM or disk, expect dramatically slower inference (10–100×).
+      For MLX 4-bit, ~380 GB is needed. The KV cache adds 2–20 GB depending on context length.
+    </div>
+  </section>
+
+  <!-- 2. Software -->
+  <section id="software" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-sm font-bold">2</span>
+      Software Setup
+    </h2>
+
+    <div class="space-y-4">
+      <!-- Step A -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <button class="w-full text-left" onclick="this.parentElement.querySelector('details').toggleAttribute('open')">
+        <details>
+          <summary class="flex items-center gap-3 px-5 py-4 font-medium">
+            <span class="step-number">A</span>
+            Clone the repository
+            <span class="chevron ml-auto text-gray-400">›</span>
+          </summary>
+          <div class="px-5 pb-4 pt-1 text-sm space-y-3">
+            <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code>git clone https://github.com/UB-IAD/sd-ai.git
+cd sd-ai
+npm install</code></pre>
+            <p class="text-gray-600">Copy the environment template and add any cloud API keys you want (not needed for local-only runs):</p>
+            <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code>cp .env.example .env
+# Edit .env — add OPENAI_API_KEY / GOOGLE_API_KEY if desired</code></pre>
+          </div>
+        </details>
+        </button>
+      </div>
+
+      <!-- Step B -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <details>
+          <summary class="flex items-center gap-3 px-5 py-4 font-medium cursor-pointer">
+            <span class="step-number">B</span>
+            Install LM Studio and download your model
+            <span class="chevron ml-auto text-gray-400">›</span>
+          </summary>
+          <div class="px-5 pb-4 pt-1 text-sm space-y-3">
+            <p class="text-gray-600">Download <a href="https://lmstudio.ai" class="text-indigo-600 underline" target="_blank">LM Studio</a>
+            and use its model browser to download your chosen model. Models tested in this benchmark:</p>
+            <div class="overflow-x-auto">
+              <table class="text-xs w-full border-collapse">
+                <thead><tr class="bg-gray-50">
+                  <th class="text-left px-3 py-2 border border-gray-200">Model</th>
+                  <th class="text-left px-3 py-2 border border-gray-200">Params</th>
+                  <th class="text-left px-3 py-2 border border-gray-200">Quant</th>
+                  <th class="text-left px-3 py-2 border border-gray-200">Min RAM</th>
+                  <th class="text-left px-3 py-2 border border-gray-200">Source</th>
+                </tr></thead>
+                <tbody>
+                  <tr class="border-b border-gray-100">
+                    <td class="px-3 py-2 border border-gray-200">Kimi K2.5</td>
+                    <td class="px-3 py-2 border border-gray-200">671B</td>
+                    <td class="px-3 py-2 border border-gray-200">GGUF Q3_K_M</td>
+                    <td class="px-3 py-2 border border-gray-200">~290 GB</td>
+                    <td class="px-3 py-2 border border-gray-200">bartowski</td>
+                  </tr>
+                  <tr class="border-b border-gray-100">
+                    <td class="px-3 py-2 border border-gray-200">DeepSeek V3.2</td>
+                    <td class="px-3 py-2 border border-gray-200">671B</td>
+                    <td class="px-3 py-2 border border-gray-200">MLX-4bit / Q4_K_M</td>
+                    <td class="px-3 py-2 border border-gray-200">~380 GB</td>
+                    <td class="px-3 py-2 border border-gray-200">mlx-community / bartowski</td>
+                  </tr>
+                  <tr class="border-b border-gray-100">
+                    <td class="px-3 py-2 border border-gray-200">Qwen 3.5 397B</td>
+                    <td class="px-3 py-2 border border-gray-200">397B</td>
+                    <td class="px-3 py-2 border border-gray-200">MLX-6bit / Q4_K_M</td>
+                    <td class="px-3 py-2 border border-gray-200">~290 GB</td>
+                    <td class="px-3 py-2 border border-gray-200">mlx-community / bartowski</td>
+                  </tr>
+                  <tr class="border-b border-gray-100">
+                    <td class="px-3 py-2 border border-gray-200">Llama 4 Maverick</td>
+                    <td class="px-3 py-2 border border-gray-200">400B (MoE)</td>
+                    <td class="px-3 py-2 border border-gray-200">GGUF Q4_K_S</td>
+                    <td class="px-3 py-2 border border-gray-200">~240 GB</td>
+                    <td class="px-3 py-2 border border-gray-200">bartowski</td>
+                  </tr>
+                  <tr>
+                    <td class="px-3 py-2 border border-gray-200">Mistral Large 2411</td>
+                    <td class="px-3 py-2 border border-gray-200">123B</td>
+                    <td class="px-3 py-2 border border-gray-200">GGUF Q6_K</td>
+                    <td class="px-3 py-2 border border-gray-200">~100 GB</td>
+                    <td class="px-3 py-2 border border-gray-200">bartowski</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </details>
+      </div>
+
+      <!-- Step C -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <details>
+          <summary class="flex items-center gap-3 px-5 py-4 font-medium cursor-pointer">
+            <span class="step-number">C</span>
+            Start the local inference server
+            <span class="chevron ml-auto text-gray-400">›</span>
+          </summary>
+          <div class="px-5 pb-4 pt-1 text-sm space-y-3">
+            <p class="text-gray-700 font-medium">Option 1: LM Studio local server (easiest)</p>
+            <p class="text-gray-600">Load your model in LM Studio, go to <em>Local Server</em>, choose port (e.g. 1234), and click Start.</p>
+
+            <p class="text-gray-700 font-medium mt-3">Option 2: mlx_lm directly (lower overhead, recommended for MLX models)</p>
+            <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code># Install
+pip install mlx-lm
+
+# Start server (replace path and port as needed)
+python3 -m mlx_lm.server \
+  --model /path/to/your/model \
+  --port 8080 \
+  --host 0.0.0.0 \
+  --chat-template-args '{"thinking": false}'</code></pre>
+            <p class="text-gray-600 text-xs">The <code>thinking: false</code> flag disables reasoning mode on models that support it (e.g. Kimi K2.5, Qwen 3).
+            Benchmarks measure task performance, not chain-of-thought quality.</p>
+
+            <p class="text-gray-700 font-medium mt-3">Verify the server is running</p>
+            <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code>curl -s http://localhost:8080/v1/models | python3 -m json.tool</code></pre>
+          </div>
+        </details>
+      </div>
+
+      <!-- Step D -->
+      <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <details>
+          <summary class="flex items-center gap-3 px-5 py-4 font-medium cursor-pointer">
+            <span class="step-number">D</span>
+            Create a model profile
+            <span class="chevron ml-auto text-gray-400">›</span>
+          </summary>
+          <div class="px-5 pb-4 pt-1 text-sm space-y-3">
+            <p class="text-gray-600">Create <code>evals/model-profiles/my-model.json</code>. Copy a similar profile from the
+              <a href="https://github.com/tleitch/sd-ai/tree/feature/local-llm-benchmarking/evals/model-profiles"
+                 class="text-indigo-600 underline" target="_blank">fork's model-profiles directory</a> as a starting point.</p>
+            <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code>{
+  "alias": "My-Model-Q4",
+  "lmStudioModelId": "author/model-name",
+  "baseURL": "http://localhost:8080/v1",
+  "quantization": "Q4_K_M",
+  "parameterCount": "70B",
+  "inferenceBackend": "llama.cpp",
+  "contextLoaded": 32768,
+  "kvCacheQuant": "off",
+  "maxTokens": 4000,
+  "timeoutMinutes": 10,
+  "lenientJsonParsing": true,
+  "jsonObjectMode": false,
+  "structuredOutput": false
+}</code></pre>
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-900 mt-2">
+              <strong>Key fields:</strong>
+              <ul class="mt-1 space-y-1 list-disc list-inside">
+                <li><code>structuredOutput: false</code> — required for mlx_lm (it ignores response_format; the harness handles JSON injection automatically)</li>
+                <li><code>lenientJsonParsing: true</code> — allows recovery from extra text wrapping JSON</li>
+                <li><code>contextLoaded</code> — actual context you loaded in LM Studio, not the model's max</li>
+              </ul>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Running -->
+  <section id="running" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-sm font-bold">3</span>
+      Running the Benchmark
+    </h2>
+
+    <div class="bg-white border border-gray-200 rounded-xl p-5 space-y-4 text-sm">
+      <p class="text-gray-700">Create a run config <code>evals/run-configs/my-model-cld.json</code>:</p>
+      <pre class="bg-slate-800 rounded-lg p-4 overflow-x-auto"><code>{
+  "modelProfile": "evals/model-profiles/my-model.json",
+  "baseExperiment": "evals/experiments/leaderboardCLD.json",
+  "engines": [
+    {
+      "name": "qualitative",
+      "limits": { "tokensPerMinute": 10000, "requestsPerMinute": 4, "baselineTokenUsage": 6000 }
+    },
+    {
+      "name": "qualitative-zero",
+      "limits": { "tokensPerMinute": 10000, "requestsPerMinute": 4, "baselineTokenUsage": 6000 }
+    }
+  ],
+  "seed": 4242,
+  "concurrency": 1,
+  "sequential": true,
+  "leaderboard": "CLD",
+  "variations": [
+    { "temperature": 0, "top_p": 1.0, "top_k": -1 },
+    { "temperature": 0.1, "top_p": 0.95, "top_k": -1 }
+  ]
+}</code></pre>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-gray-50 rounded-lg p-3">
+          <p class="font-semibold mb-1">CLD Extraction leaderboard</p>
+          <pre class="bg-slate-800 rounded p-2 overflow-x-auto"><code>npm run evals -- \
+  --config evals/run-configs/my-model-cld.json \
+  --output evals/results/my-model-cld.json</code></pre>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-3">
+          <p class="font-semibold mb-1">Discussion leaderboard</p>
+          <pre class="bg-slate-800 rounded p-2 overflow-x-auto"><code>npm run evals -- \
+  --config evals/run-configs/my-model-discuss.json \
+  --output evals/results/my-model-discuss.json</code></pre>
+          <p class="mt-1 text-gray-500">Use <code>baseExperiment: "evals/experiments/leaderboardDiscuss.json"</code></p>
+        </div>
+      </div>
+
+      <p class="text-gray-600">
+        <strong>Expected runtime:</strong> CLD suite ≈ 53 tests × 2 engines × N variations.
+        At 30 s/request (671B model), allow 1–3 hours per variation. Use <code>sequential: true</code>
+        and <code>concurrency: 1</code> for local models to avoid Metal GPU contention.
+      </p>
+    </div>
+  </section>
+
+  <!-- 4. Pitfalls -->
+  <section id="pitfalls" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-red-100 text-red-700 rounded-lg flex items-center justify-center text-sm font-bold">!</span>
+      Common Pitfalls
+    </h2>
+    <div class="space-y-3">
+
+      <div class="bg-white border border-red-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">🚫</span>
+          <div>
+            <h3 class="font-semibold text-red-800">mlx_lm ignores <code>response_format: json_object</code></h3>
+            <p class="text-sm text-gray-700 mt-1">
+              The mlx_lm server silently ignores <code>response_format</code> and returns free text.
+              The SD-AI harness handles this automatically when <code>structuredOutput: false</code> is set
+              in your model profile — it injects a JSON instruction into the system prompt.
+              Do <em>not</em> set <code>structuredOutput: true</code> for mlx_lm models or responses will fail to parse.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-amber-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">⚠️</span>
+          <div>
+            <h3 class="font-semibold text-amber-800">Metal GPU OOM on long prompts</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              Even with 512 GB unified memory, Apple's Metal GPU allocator will OOM on prompts longer than
+              ~60–80k tokens. This is a GPU memory constraint, not system RAM.
+              Set <code>contextLoaded</code> to a value the model can handle without OOM — 16k–32k is safe
+              for most models on 192 GB hardware; 64k–128k requires 384 GB+.
+              When in doubt, lower the context window first.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-amber-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">⚠️</span>
+          <div>
+            <h3 class="font-semibold text-amber-800">Jinja2 template incompatibility with multi-turn messages</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              Many GGUF and MLX models ship Jinja2 chat templates that expect a single user message per turn,
+              not consecutive user messages. The SD-AI harness collapses consecutive user messages automatically,
+              but if you build custom prompts outside the harness you may get garbled outputs or
+              "template error" responses. Always validate your prompt structure with a quick sanity test first.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-amber-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">⚠️</span>
+          <div>
+            <h3 class="font-semibold text-amber-800"><code>temperature: 0</code> is not truly deterministic on Apple Silicon</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              Apple's Metal compute introduces non-deterministic floating-point order, so
+              <code>temperature: 0</code> (greedy decoding) will produce slightly different outputs
+              across runs. For reproducible comparisons, use the same <code>seed</code> value (we use 4242)
+              and report results as an average over ≥3 seeds if you need confidence intervals.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-blue-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">💡</span>
+          <div>
+            <h3 class="font-semibold text-blue-800">Thinking / reasoning mode inflates latency and may hurt task scores</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              Models with built-in chain-of-thought (Kimi K2.5, Qwen 3, DeepSeek R1) produce long
+              <code>&lt;think&gt;</code> blocks before answering. These tokens are not counted in the
+              benchmark score but do inflate average response time significantly.
+              For CLD extraction and discussion tasks, we found reasoning mode <em>hurts</em> structured output
+              compliance — disable it with <code>{"thinking": false}</code> in mlx_lm's
+              <code>--chat-template-args</code> flag. LM Studio has a "Reasoning" toggle in model settings.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-blue-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">💡</span>
+          <div>
+            <h3 class="font-semibold text-blue-800">LM Studio model ID vs. file path</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              When running via mlx_lm directly (not LM Studio), use the full file path to the model directory
+              as the model ID in your API calls. LM Studio uses a short <code>author/model-name</code> slug.
+              If you see <code>model not found</code> errors, verify what the server reports via
+              <code>GET /v1/models</code> and use that exact string in <code>lmStudioModelId</code>.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-blue-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">💡</span>
+          <div>
+            <h3 class="font-semibold text-blue-800">Rate limiting: match your hardware capacity</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              The <code>tokensPerMinute</code> and <code>requestsPerMinute</code> limits in your run config
+              must be set conservatively for local models. A 671B model may only process 500–1500 tokens/min.
+              Too-high limits cause request queuing, timeout cascades, and inflated latency numbers.
+              Start with <code>requestsPerMinute: 3</code> and <code>tokensPerMinute: 8000</code>,
+              then raise if the model is consistently fast.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-blue-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">💡</span>
+          <div>
+            <h3 class="font-semibold text-blue-800">KV cache quantization can degrade output quality</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              LM Studio's KV cache quantization (Q8_0, Q4_0) reduces memory use but can cause subtle
+              accuracy regressions on structured extraction tasks. Our benchmarks use <code>kvCacheQuant: "off"</code>
+              for apples-to-apples comparison. If you enable KV cache quant, note it in your submission.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-100 rounded-xl p-5">
+        <div class="flex gap-3">
+          <span class="pitfall-icon">🔍</span>
+          <div>
+            <h3 class="font-semibold">Partial offload destroys performance</h3>
+            <p class="text-sm text-gray-700 mt-1">
+              If a model does not fit entirely in unified memory, llama.cpp will offload layers to CPU.
+              Even 5% CPU offload can slow inference 5–20× on large models. Verify full GPU utilization
+              with <code>sudo powermetrics --samplers gpu_power -i 1000</code> and watch for
+              "cpu offload" in llama.cpp startup logs. If offloading is unavoidable, report it in your submission.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. Interpreting -->
+  <section id="interpreting" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-indigo-100 text-indigo-700 rounded-lg flex items-center justify-center text-sm font-bold">5</span>
+      Interpreting Results
+    </h2>
+    <div class="bg-white border border-gray-200 rounded-xl p-5 text-sm space-y-3">
+      <p><strong>Overall score</strong> = fraction of individual test cases passed (0–1). Higher is better.</p>
+      <p><strong>CLD Extraction</strong> covers 53 test cases across four categories:</p>
+      <ul class="list-disc list-inside ml-4 space-y-1 text-gray-700">
+        <li><strong>Qualitative Translation</strong> — extract causal relationships from English text</li>
+        <li><strong>Causal Reasoning</strong> — identify causal structure in real-world contexts</li>
+        <li><strong>Iteration</strong> — refine an existing model given feedback</li>
+        <li><strong>Conformance</strong> — follow structural constraints and output format requirements</li>
+      </ul>
+      <p><strong>Discussion</strong> covers 21 test cases across three categories:</p>
+      <ul class="list-disc list-inside ml-4 space-y-1 text-gray-700">
+        <li><strong>Feedback Explanation</strong> — correctly explain feedback loop dynamics</li>
+        <li><strong>Model Building Steps</strong> — articulate sound modeling methodology</li>
+        <li><strong>Error Fixing Suggestions</strong> — identify and fix formulation errors</li>
+      </ul>
+      <p class="text-gray-500 text-xs mt-3">
+        Scores are not normalized for model size. A 671B model scoring 77% vs a cloud model scoring 88%
+        does not mean the local model is "12% worse" in any practical sense — the gap must be weighed
+        against hardware cost, privacy, latency, and throughput requirements.
+      </p>
+    </div>
+  </section>
+
+  <!-- 6. Submitting -->
+  <section id="submitting" class="mb-10">
+    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+      <span class="w-7 h-7 bg-green-100 text-green-700 rounded-lg flex items-center justify-center text-sm font-bold">6</span>
+      Submitting Your Results
+    </h2>
+    <div class="bg-white border border-gray-200 rounded-xl p-5 text-sm space-y-4">
+      <p class="text-gray-700">
+        Submissions are PR-based — you add your actual results JSON to the repo and open a pull request.
+        This means the numbers are always backed by real benchmark output that maintainers can verify before merging.
+      </p>
+
+      <ol class="space-y-4">
+        <li class="flex gap-3">
+          <span class="step-number flex-shrink-0">1</span>
+          <div>
+            <p class="font-medium">Fork the repo and create a model profile</p>
+            <p class="text-gray-600 mt-1">Fork <a href="https://github.com/UB-IAD/sd-ai" class="text-indigo-600 underline" target="_blank">UB-IAD/sd-ai</a>,
+            then add a model profile JSON under <code>evals/model-profiles/</code> as described in Step D above.</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="step-number flex-shrink-0">2</span>
+          <div>
+            <p class="font-medium">Run the benchmark and save output</p>
+            <pre class="bg-slate-800 rounded-lg p-3 overflow-x-auto mt-2"><code>npm run evals -- \
+  --config evals/run-configs/my-model-cld.json \
+  --output community-results/my-model-cld.json</code></pre>
+            <p class="text-gray-600 mt-2">Save to <code>community-results/</code> (this directory is gitignored in the main repo but not in forks).</p>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="step-number flex-shrink-0">3</span>
+          <div>
+            <p class="font-medium">Add a submission metadata file</p>
+            <p class="text-gray-600 mt-1">Create <code>community-results/my-model-cld.meta.json</code>:</p>
+            <pre class="bg-slate-800 rounded-lg p-3 overflow-x-auto mt-2"><code>{
+  "contributor": "your-github-username",
+  "hardware": "Apple M3 Max 128GB",
+  "macOS": "15.3",
+  "backend": "mlx_lm 0.22.0",
+  "contextLoaded": 32768,
+  "kvCacheQuant": "off",
+  "thinkingMode": false,
+  "fullGPU": true,
+  "notes": "Any deviations from the standard setup"
+}</code></pre>
+          </div>
+        </li>
+        <li class="flex gap-3">
+          <span class="step-number flex-shrink-0">4</span>
+          <div>
+            <p class="font-medium">Open a pull request</p>
+            <p class="text-gray-600 mt-1">
+              Commit both files and open a PR against <code>UB-IAD/sd-ai</code>.
+              The maintainer will run <code>npm run leaderboard</code> from your branch to verify the scores
+              before merging. Verified results are added to <code>docs/data/leaderboard.json</code> and the
+              leaderboard page is updated.
+            </p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 text-xs text-gray-600 mt-2">
+        <strong>Why PRs, not issues?</strong> Scores must be backed by a real results JSON file that the
+        maintainer can inspect and re-verify. This prevents fabricated submissions and makes every leaderboard
+        entry reproducible.
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-xs text-gray-400 text-center pt-4 border-t border-gray-200">
+    <a href="index.html" class="underline">← Back to Leaderboard</a> ·
+    <a href="https://github.com/UB-IAD/sd-ai" class="underline" target="_blank">UB-IAD/sd-ai on GitHub</a> ·
+    Benchmark v1.0 · Mac Studio M3 Ultra 512 GB reference hardware
+  </footer>
+
+</main>
+</body>
+</html>

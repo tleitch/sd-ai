@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SD-AI Local LLM Leaderboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .score-bar { display: inline-block; background: #e2e8f0; border-radius: 3px; height: 8px; vertical-align: middle; }
+  .score-fill-local { background: #6366f1; border-radius: 3px; height: 8px; }
+  .score-fill-cloud { background: #10b981; border-radius: 3px; height: 8px; }
+  .tab-active { border-bottom: 2px solid #6366f1; color: #6366f1; font-weight: 600; }
+  .tab-inactive { border-bottom: 2px solid transparent; color: #64748b; }
+  .tab-inactive:hover { color: #334155; }
+  th { cursor: pointer; user-select: none; }
+  th:hover { background: #f1f5f9; }
+  tr:hover td { background: #f8fafc; }
+  .badge-local { background: #eef2ff; color: #4338ca; }
+  .badge-cloud { background: #ecfdf5; color: #065f46; }
+  .badge-gguf  { background: #fef3c7; color: #92400e; }
+  .badge-mlx   { background: #ede9fe; color: #5b21b6; }
+  .tooltip { position: relative; }
+  .tooltip:hover .tip { display: block; }
+  .tip { display: none; position: absolute; bottom: 125%; left: 50%; transform: translateX(-50%);
+         background: #1e293b; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px;
+         white-space: nowrap; z-index: 10; }
+</style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+<!-- Header -->
+<header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">SD</div>
+      <div>
+        <h1 class="text-lg font-bold leading-tight">SD-AI Leaderboard</h1>
+        <p class="text-xs text-gray-500">Local LLM Benchmarks for System Dynamics Assistants</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="howto.html" class="text-sm text-indigo-600 hover:text-indigo-800 font-medium">How-To &amp; Pitfalls →</a>
+      <a href="howto.html#submitting"
+         class="bg-indigo-600 text-white text-sm px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium">
+        Submit Results
+      </a>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-6">
+
+  <!-- Intro -->
+  <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-5 mb-6">
+    <div class="flex flex-wrap gap-6 items-start">
+      <div class="flex-1 min-w-64">
+        <h2 class="font-semibold text-indigo-900 mb-1">About this benchmark</h2>
+        <p class="text-sm text-indigo-800 leading-relaxed">
+          Two evaluation suites measure how well LLMs assist with causal loop diagram (CLD) extraction and
+          System Dynamics discussion tasks. All local runs use Apple Silicon via
+          <strong>LM&nbsp;Studio</strong> + <strong>mlx_lm</strong> or <strong>llama.cpp</strong>.
+          Hardware: Mac Studio M3 Ultra 512&nbsp;GB.
+        </p>
+        <p class="text-sm text-indigo-700 mt-2">
+          <a href="howto.html" class="underline">Run it yourself</a> and
+          <a href="howto.html#submitting" class="underline">submit a PR with your results JSON</a> to appear on this leaderboard.
+        </p>
+      </div>
+      <div id="summary-stats" class="flex gap-6 text-center flex-wrap"></div>
+    </div>
+  </div>
+
+  <!-- Leaderboard tabs -->
+  <div id="leaderboard-section" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+
+    <!-- Tab bar + leaderboard switch -->
+    <div class="flex items-center justify-between border-b border-gray-200 px-4">
+      <div class="flex gap-4" id="tab-bar">
+        <button onclick="setTab('local')" id="tab-local" class="py-3 text-sm tab-active transition-colors">Local LLMs</button>
+        <button onclick="setTab('cloud')" id="tab-cloud" class="py-3 text-sm tab-inactive transition-colors">Cloud LLMs</button>
+        <button onclick="setTab('all')" id="tab-all"   class="py-3 text-sm tab-inactive transition-colors">All Models</button>
+      </div>
+      <div class="flex items-center gap-2 text-sm text-gray-600">
+        <span>Benchmark:</span>
+        <select id="lb-select" onchange="render()" class="border border-gray-200 rounded px-2 py-1 text-sm">
+          <option value="cld">CLD Extraction</option>
+          <option value="discuss">SD Discussion</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm" id="lb-table">
+        <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wide">
+          <tr id="th-row"></tr>
+        </thead>
+        <tbody id="lb-body"></tbody>
+      </table>
+    </div>
+
+    <div id="no-data" class="hidden text-center py-12 text-gray-400 text-sm">No results for this combination yet.</div>
+  </div>
+
+  <!-- Chart -->
+  <div class="mt-6 bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+    <h3 class="font-semibold text-gray-800 mb-4">Score Comparison</h3>
+    <div style="height:320px; position:relative;">
+      <canvas id="score-chart"></canvas>
+    </div>
+  </div>
+
+  <!-- Footer note -->
+  <p class="text-xs text-gray-400 mt-6 text-center">
+    Results from <a href="https://github.com/UB-IAD/sd-ai" class="underline" target="_blank">UB-IAD/sd-ai</a>.
+    All scores are pass rates (0–1). CLD leaderboard: 53 tests. Discussion leaderboard: 21 tests.
+    <span id="generated-date"></span>
+  </p>
+
+</main>
+
+<script>
+let data = null;
+let sortCol = 'overall';
+let sortDir = -1;
+let currentTab = 'local';
+let chart = null;
+
+const CATEGORY_LABELS = {
+  qualitativeTranslation: 'CLD Translation',
+  qualitativeCausalReasoning: 'Causal Reasoning',
+  qualitativeIteration: 'Iteration',
+  conformance: 'Conformance',
+  feedbackExplanation: 'Feedback Explanation',
+  modelBuildingSteps: 'Model Building',
+  errorFixingSuggestions: 'Error Fixing',
+};
+
+async function loadData() {
+  const res = await fetch('data/leaderboard.json');
+  data = await res.json();
+  document.getElementById('generated-date').textContent = `Last updated: ${data.generated}.`;
+  render();
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  ['local','cloud','all'].forEach(t => {
+    const el = document.getElementById('tab-' + t);
+    el.className = 'py-3 text-sm transition-colors ' + (t === tab ? 'tab-active' : 'tab-inactive');
+  });
+  render();
+}
+
+function getModels() {
+  const lb = document.getElementById('lb-select').value;
+  return data.models.filter(m => {
+    if (currentTab === 'local' && m.type !== 'local') return false;
+    if (currentTab === 'cloud' && m.type !== 'cloud') return false;
+    return m[lb] !== null;
+  });
+}
+
+function render() {
+  if (!data) return;
+  const lb = document.getElementById('lb-select').value;
+  const cats = data.categories[lb] || [];
+  const models = getModels();
+
+  // Summary stats
+  const localCount = data.models.filter(m => m.type === 'local' && m[lb]).length;
+  const cloudCount = data.models.filter(m => m.type === 'cloud' && m[lb]).length;
+  const bestLocal = data.models.filter(m => m.type === 'local' && m[lb]).sort((a,b) => b[lb].overall - a[lb].overall)[0];
+  const bestCloud = data.models.filter(m => m.type === 'cloud' && m[lb]).sort((a,b) => b[lb].overall - a[lb].overall)[0];
+
+  document.getElementById('summary-stats').innerHTML = `
+    <div><div class="text-2xl font-bold text-indigo-700">${localCount}</div><div class="text-xs text-gray-500">Local models</div></div>
+    <div><div class="text-2xl font-bold text-indigo-700">${cloudCount}</div><div class="text-xs text-gray-500">Cloud models</div></div>
+    ${bestLocal ? `<div><div class="text-2xl font-bold text-indigo-700">${(bestLocal[lb].overall*100).toFixed(0)}%</div><div class="text-xs text-gray-500">Best local (${lb.toUpperCase()})</div></div>` : ''}
+    ${bestCloud ? `<div><div class="text-2xl font-bold text-emerald-600">${(bestCloud[lb].overall*100).toFixed(0)}%</div><div class="text-xs text-gray-500">Best cloud (${lb.toUpperCase()})</div></div>` : ''}
+  `;
+
+  // Sort
+  const sorted = [...models].sort((a, b) => {
+    const av = sortCol === 'overall' ? (a[lb]?.overall ?? -1) :
+               sortCol === 'speed'   ? (a[lb]?.avgTimeSeconds ?? 9999) :
+               sortCol === 'params'  ? parseBillions(a.parameters) :
+               (a[lb]?.categories?.[sortCol] ?? -1);
+    const bv = sortCol === 'overall' ? (b[lb]?.overall ?? -1) :
+               sortCol === 'speed'   ? (b[lb]?.avgTimeSeconds ?? 9999) :
+               sortCol === 'params'  ? parseBillions(b.parameters) :
+               (b[lb]?.categories?.[sortCol] ?? -1);
+    return sortDir * (bv - av);
+  });
+
+  // Header
+  const thRow = document.getElementById('th-row');
+  const cols = [
+    { key: 'rank', label: '#', sortable: false },
+    { key: 'model', label: 'Model', sortable: false },
+    { key: 'overall', label: 'Overall ▼', sortable: true },
+    ...cats.map(c => ({ key: c, label: CATEGORY_LABELS[c] || c, sortable: true })),
+    { key: 'speed', label: 'Avg Time', sortable: true },
+  ];
+
+  thRow.innerHTML = cols.map(c => `
+    <th class="px-3 py-2 text-left ${c.sortable ? 'hover:bg-gray-100' : ''}"
+        ${c.sortable ? `onclick="sortBy('${c.key}')"` : ''}>
+      ${c.label}${sortCol === c.key ? (sortDir < 0 ? ' ↓' : ' ↑') : ''}
+    </th>
+  `).join('');
+
+  // Rows
+  const tbody = document.getElementById('lb-body');
+  if (sorted.length === 0) {
+    document.getElementById('no-data').classList.remove('hidden');
+    tbody.innerHTML = '';
+  } else {
+    document.getElementById('no-data').classList.add('hidden');
+    tbody.innerHTML = sorted.map((m, i) => {
+      const score = m[lb];
+      const isLocal = m.type === 'local';
+      const badgeType = isLocal ? 'badge-local' : 'badge-cloud';
+      const fillClass = isLocal ? 'score-fill-local' : 'score-fill-cloud';
+
+      const backendBadge = m.backend === 'mlx_lm' ? 'badge-mlx' :
+                           m.backend === 'llama.cpp' ? 'badge-gguf' : '';
+
+      const catCells = cats.map(c => {
+        const v = score?.categories?.[c];
+        return v !== undefined
+          ? `<td class="px-3 py-2 text-center">${(v*100).toFixed(0)}%</td>`
+          : `<td class="px-3 py-2 text-center text-gray-300">—</td>`;
+      }).join('');
+
+      return `<tr class="border-t border-gray-100">
+        <td class="px-3 py-2 text-gray-400 text-xs">${i+1}</td>
+        <td class="px-3 py-2 min-w-48">
+          <div class="font-medium">${m.family || m.alias}</div>
+          <div class="flex flex-wrap gap-1 mt-1">
+            <span class="text-xs px-1.5 py-0.5 rounded ${badgeType}">${isLocal ? 'local' : 'cloud'}</span>
+            ${m.quantization && m.quantization !== 'cloud API' ? `<span class="text-xs px-1.5 py-0.5 rounded ${backendBadge}">${m.quantization}</span>` : ''}
+            ${m.parameters ? `<span class="text-xs text-gray-400">${m.parameters}</span>` : ''}
+          </div>
+        </td>
+        <td class="px-3 py-2">
+          <div class="flex items-center gap-2">
+            <span class="font-semibold w-10 text-right">${score ? (score.overall*100).toFixed(0)+'%' : '—'}</span>
+            <div class="score-bar w-20">
+              <div class="${fillClass}" style="width:${score ? score.overall*100 : 0}%"></div>
+            </div>
+          </div>
+        </td>
+        ${catCells}
+        <td class="px-3 py-2 text-gray-500 text-right">${score?.avgTimeSeconds != null ? score.avgTimeSeconds+'s' : '—'}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  renderChart(sorted, lb);
+}
+
+function sortBy(col) {
+  if (sortCol === col) sortDir *= -1;
+  else { sortCol = col; sortDir = -1; }
+  render();
+}
+
+function parseBillions(s) {
+  if (!s) return 0;
+  const m = s.match(/([\d.]+)B/i);
+  return m ? parseFloat(m[1]) : 0;
+}
+
+function renderChart(models, lb) {
+  const canvas = document.getElementById('score-chart');
+  if (chart) chart.destroy();
+
+  const MAX = 20;
+  const display = models.slice(0, MAX);
+  const labels = display.map(m => m.family || m.alias);
+  const scores = display.map(m => m[lb]?.overall ?? 0);
+  const colors = display.map(m => m.type === 'local' ? 'rgba(99,102,241,0.8)' : 'rgba(16,185,129,0.8)');
+
+  chart = new Chart(canvas, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: scores.map(s => +(s*100).toFixed(1)),
+        backgroundColor: colors,
+        borderRadius: 4,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.raw}%` }
+        }
+      },
+      scales: {
+        y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: '#f1f5f9' } },
+        x: { ticks: { maxRotation: 35, font: { size: 11 } } }
+      }
+    }
+  });
+}
+
+loadData();
+</script>
+</body>
+</html>

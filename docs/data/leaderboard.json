@@ -1,0 +1,761 @@
+{
+  "generated": "2026-04-22",
+  "categories": {
+    "cld": [
+      "conformance",
+      "qualitativeCausalReasoning",
+      "qualitativeIteration",
+      "qualitativeTranslation"
+    ],
+    "discuss": [
+      "errorFixingSuggestions",
+      "feedbackExplanation",
+      "modelBuildingSteps"
+    ]
+  },
+  "models": [
+    {
+      "alias": "gemini-2.5-flash",
+      "family": "gemini 2.5 flash",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.887,
+        "categories": {
+          "qualitativeTranslation": 1,
+          "conformance": 0.833,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.875
+        },
+        "avgTimeSeconds": 17.2,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-2.5-flash"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gemini-3.1-pro-preview",
+      "family": "gemini 3.1 pro preview",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.849,
+        "categories": {
+          "qualitativeTranslation": 1,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 1
+        },
+        "avgTimeSeconds": 50.6,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-3.1-pro-preview"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Kimi-K2.5-MLX-3bit",
+      "family": "Kimi K2.5",
+      "quantization": "MLX-3bit",
+      "parameters": "671B",
+      "backend": "mlx_lm",
+      "contextLoaded": 163840,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": null,
+      "discuss": {
+        "overall": 0.833,
+        "categories": {
+          "feedbackExplanation": 0.75,
+          "modelBuildingSteps": 1
+        },
+        "avgTimeSeconds": 263.7,
+        "testCount": 6,
+        "bestConfig": "seldon-Kimi-K2.5-MLX-3bit-ctx164k-t0.1-p0.9-k20-seed4242"
+      }
+    },
+    {
+      "alias": "gpt-5.1",
+      "family": "gpt 5.1",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.83,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 1
+        },
+        "avgTimeSeconds": 41.6,
+        "testCount": 53,
+        "bestConfig": "qualitative-gpt-5.1"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "claude-sonnet-4-5",
+      "family": "claude sonnet 4 5",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.83,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.833,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.625
+        },
+        "avgTimeSeconds": 17.3,
+        "testCount": 53,
+        "bestConfig": "qualitative-claude-sonnet-4-5"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gemini-3-pro-preview",
+      "family": "gemini 3 pro preview",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.811,
+        "categories": {
+          "qualitativeTranslation": 1,
+          "conformance": 0.611,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.875
+        },
+        "avgTimeSeconds": 22.2,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-3-pro-preview"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "claude-opus-4-5",
+      "family": "claude opus 4 5",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.811,
+        "categories": {
+          "qualitativeTranslation": 0.875,
+          "conformance": 0.889,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.75
+        },
+        "avgTimeSeconds": 15,
+        "testCount": 53,
+        "bestConfig": "qualitative-claude-opus-4-5"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gemini-2.5-pro",
+      "family": "gemini 2.5 pro",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.792,
+        "categories": {
+          "qualitativeTranslation": 0.917,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.875
+        },
+        "avgTimeSeconds": 26.7,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-2.5-pro"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "claude-opus-4-6",
+      "family": "claude opus 4 6",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.792,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.625
+        },
+        "avgTimeSeconds": 16.9,
+        "testCount": 53,
+        "bestConfig": "qualitative-claude-opus-4-6"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Kimi-K2.5-GGUF-Q3",
+      "family": "Kimi K2.5",
+      "quantization": "Q3",
+      "parameters": "671B",
+      "backend": "llama.cpp",
+      "contextLoaded": 16384,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.774,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.889,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.125
+        },
+        "avgTimeSeconds": 116.4,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-Kimi-K2.5-GGUF-Q3-ctx16k-t0-seed4242"
+      },
+      "discuss": {
+        "overall": 0.714,
+        "categories": {
+          "feedbackExplanation": 0.667,
+          "modelBuildingSteps": 1,
+          "errorFixingSuggestions": 0.5
+        },
+        "avgTimeSeconds": 525.7,
+        "testCount": 14,
+        "bestConfig": "seldon-Kimi-K2.5-GGUF-Q3-ctx16k-t0.1-p0.9-k20-seed4242"
+      }
+    },
+    {
+      "alias": "gemini-2.5-flash-preview-09-2025",
+      "family": "gemini 2.5 flash preview 09 2025",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.774,
+        "categories": {
+          "qualitativeTranslation": 1,
+          "conformance": 0.667,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.625
+        },
+        "avgTimeSeconds": 12.8,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-2.5-flash-preview-09-2025"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gpt-5.2",
+      "family": "gpt 5.2",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.755,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.5
+        },
+        "avgTimeSeconds": 38.3,
+        "testCount": 53,
+        "bestConfig": "qualitative-gpt-5.2"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "o4-mini",
+      "family": "o4 mini",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.755,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.778,
+          "qualitativeCausalReasoning": 0.667,
+          "qualitativeIteration": 0.125
+        },
+        "avgTimeSeconds": 22.4,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-o4-mini"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gpt-5-mini",
+      "family": "gpt 5 mini",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.736,
+        "categories": {
+          "qualitativeTranslation": 0.75,
+          "conformance": 0.667,
+          "qualitativeCausalReasoning": 0.667,
+          "qualitativeIteration": 0.875
+        },
+        "avgTimeSeconds": 47.3,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gpt-5-mini"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gemini-3-flash-preview",
+      "family": "gemini 3 flash preview",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.717,
+        "categories": {
+          "qualitativeTranslation": 0.875,
+          "conformance": 0.667,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.625
+        },
+        "avgTimeSeconds": 35.8,
+        "testCount": 53,
+        "bestConfig": "qualitative-gemini-3-flash-preview"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "claude-sonnet-4-6",
+      "family": "claude sonnet 4 6",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.717,
+        "categories": {
+          "qualitativeTranslation": 0.833,
+          "conformance": 0.667,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.625
+        },
+        "avgTimeSeconds": 17.6,
+        "testCount": 53,
+        "bestConfig": "qualitative-claude-sonnet-4-6"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "DeepSeek-V3_2-MLX-4",
+      "family": "DeepSeek V3 2",
+      "quantization": "MLX-4",
+      "parameters": "671B",
+      "backend": "mlx_lm",
+      "contextLoaded": 64000,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.698,
+        "categories": {
+          "qualitativeTranslation": 0.792,
+          "conformance": 0.944,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.125
+        },
+        "avgTimeSeconds": 205.5,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-DeepSeek-V3_2-MLX-4-ctx164k-t0.1-p0.95-seed4242"
+      },
+      "discuss": {
+        "overall": 0,
+        "categories": {
+          "feedbackExplanation": 0,
+          "modelBuildingSteps": 0
+        },
+        "avgTimeSeconds": 54.8,
+        "testCount": 4,
+        "bestConfig": "seldon-DeepSeek-V3_2-MLX-4-ctx164k-t0-p1-seed4242"
+      }
+    },
+    {
+      "alias": "DeepSeek-V3_2-Q4_K_M",
+      "family": "DeepSeek V3 2",
+      "quantization": "Q4_K_M",
+      "parameters": "671B",
+      "backend": "llama.cpp",
+      "contextLoaded": 163840,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.698,
+        "categories": {
+          "qualitativeTranslation": 0.917,
+          "conformance": 0.611,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.5
+        },
+        "avgTimeSeconds": 329.6,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-DeepSeek-V3_2-Q4_K_M-t0-p1-seed4242"
+      },
+      "discuss": {
+        "overall": 0.6,
+        "categories": {
+          "feedbackExplanation": 0.5,
+          "modelBuildingSteps": 1,
+          "errorFixingSuggestions": 0.5
+        },
+        "avgTimeSeconds": 4787.5,
+        "testCount": 10,
+        "bestConfig": "seldon-DeepSeek-V3_2-Q4_K_M-ctx82k-t0.1-p0.95-seed4242"
+      }
+    },
+    {
+      "alias": "gpt-5",
+      "family": "gpt 5",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.679,
+        "categories": {
+          "qualitativeTranslation": 0.875,
+          "conformance": 0.722,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.125
+        },
+        "avgTimeSeconds": 38,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gpt-5"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gpt-5-nano",
+      "family": "gpt 5 nano",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.66,
+        "categories": {
+          "qualitativeTranslation": 0.792,
+          "conformance": 0.778,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.25
+        },
+        "avgTimeSeconds": 34.2,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gpt-5-nano"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Qwen3.5-397B-Q4_K_M",
+      "family": "Qwen3.5 397B",
+      "quantization": "Q4_K_M",
+      "parameters": "397B",
+      "backend": "llama.cpp",
+      "contextLoaded": 64000,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.642,
+        "categories": {
+          "qualitativeTranslation": 0.958,
+          "conformance": 0.611,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 100.9,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-Qwen3.5-397B-Q4_K_M-ctx64k-t0-p0.95-seed4242"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Qwen3.5-397B-MLX-6",
+      "family": "Qwen3.5 397B",
+      "quantization": "MLX-6",
+      "parameters": "397B",
+      "backend": "mlx_lm",
+      "contextLoaded": 64000,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.623,
+        "categories": {
+          "qualitativeTranslation": 0.792,
+          "conformance": 0.778,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 268,
+        "testCount": 53,
+        "bestConfig": "qualitative-Qwen3.5-397B-MLX-6-ctx64k-t0.1-p0.95-seed4242"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "GLM-5-MLX-4",
+      "family": "GLM 5",
+      "quantization": "MLX-4",
+      "parameters": "",
+      "backend": "mlx_lm",
+      "contextLoaded": 163840,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.604,
+        "categories": {
+          "qualitativeTranslation": 0.625,
+          "conformance": 0.556,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0.75
+        },
+        "avgTimeSeconds": 189.7,
+        "testCount": 53,
+        "bestConfig": "qualitative-GLM-5-MLX-4-ctx64k-t0-p0.9-k20-seed4242"
+      },
+      "discuss": {
+        "overall": 0.143,
+        "categories": {
+          "feedbackExplanation": 0.167,
+          "modelBuildingSteps": 0.25,
+          "errorFixingSuggestions": 0
+        },
+        "avgTimeSeconds": 646.6,
+        "testCount": 14,
+        "bestConfig": "seldon-GLM-5-MLX-4-ctx164k-t0.1-p0.95-seed4242"
+      }
+    },
+    {
+      "alias": "gpt-4.1",
+      "family": "gpt 4.1",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.585,
+        "categories": {
+          "qualitativeTranslation": 0.75,
+          "conformance": 0.667,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 8.2,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gpt-4.1"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Llama-4-Maverick-Q4KS",
+      "family": "Llama 4 Maverick Q4KS",
+      "quantization": "Q4_K_S",
+      "parameters": "17Bx128E",
+      "backend": "llama.cpp",
+      "contextLoaded": 65536,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.472,
+        "categories": {
+          "qualitativeTranslation": 0.458,
+          "conformance": 0.778,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 31.7,
+        "testCount": 53,
+        "bestConfig": "qualitative-Llama-4-Maverick-Q4KS-ctx66k-t0-p1-seed4242"
+      },
+      "discuss": {
+        "overall": 0.118,
+        "categories": {
+          "feedbackExplanation": 0.333,
+          "modelBuildingSteps": 0,
+          "errorFixingSuggestions": 0
+        },
+        "avgTimeSeconds": 26.4,
+        "testCount": 17,
+        "bestConfig": "seldon-Llama-4-Maverick-Q4KS-ctx66k-t0-p1-seed4242"
+      }
+    },
+    {
+      "alias": "gemini-2.5-flash-lite",
+      "family": "gemini 2.5 flash lite",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.264,
+        "categories": {
+          "qualitativeTranslation": 0.167,
+          "conformance": 0.5,
+          "qualitativeCausalReasoning": 0.333,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 8.1,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gemini-2.5-flash-lite"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "gpt-4.1-nano",
+      "family": "gpt 4.1 nano",
+      "quantization": "cloud API",
+      "parameters": "",
+      "backend": "cloud API",
+      "contextLoaded": null,
+      "type": "cloud",
+      "contributor": "tleitch",
+      "hardware": "",
+      "cld": {
+        "overall": 0.208,
+        "categories": {
+          "qualitativeTranslation": 0.083,
+          "conformance": 0.5,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 8.1,
+        "testCount": 53,
+        "bestConfig": "qualitative-zero-gpt-4.1-nano"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "DeepSeek-R1-0528-IQ4NL",
+      "family": "DeepSeek R1 0528",
+      "quantization": "IQ4_NL",
+      "parameters": "671B",
+      "backend": "llama.cpp",
+      "contextLoaded": 32768,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.189,
+        "categories": {
+          "qualitativeTranslation": 0,
+          "conformance": 0.5,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0.125
+        },
+        "avgTimeSeconds": 25.2,
+        "testCount": 53,
+        "bestConfig": "qualitative-DeepSeek-R1-0528-IQ4NL-ctx33k-t0-seed4242"
+      },
+      "discuss": null
+    },
+    {
+      "alias": "Mistral-Large-2411-Q6K",
+      "family": "Mistral Large 2411 Q6K",
+      "quantization": "Q6_K",
+      "parameters": "123B",
+      "backend": "llama.cpp",
+      "contextLoaded": 65536,
+      "type": "local",
+      "contributor": "tleitch",
+      "hardware": "Mac Studio M3 Ultra 512GB",
+      "cld": {
+        "overall": 0.113,
+        "categories": {
+          "qualitativeTranslation": 0,
+          "conformance": 0.333,
+          "qualitativeCausalReasoning": 0,
+          "qualitativeIteration": 0
+        },
+        "avgTimeSeconds": 0,
+        "testCount": 53,
+        "bestConfig": "qualitative-Mistral-Large-2411-Q6K-ctx66k-t0-seed4242"
+      },
+      "discuss": null
+    }
+  ]
+}
